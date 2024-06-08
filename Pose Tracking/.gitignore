@@ -1,0 +1,6 @@
+__pycache__
+pose_landmarker_lite.task
+pred/*
+output/*
+label/*
+video/*
