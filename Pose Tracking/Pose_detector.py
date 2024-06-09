@@ -75,6 +75,45 @@ class Pose_detector():
 
         return angle_elbow
 
+    def calculate_iou(self, interval_a, interval_b):
+        start_a, end_a = interval_a
+        start_b, end_b = interval_b
+
+        # Check if pred_interval (interval_b) is completely within label interval (interval_a)
+        if start_a <= start_b and end_b <= end_a:
+            return 1.0
+
+        intersection = max(0, min(end_a, end_b) - max(start_a, start_b))
+        union = max(end_a, end_b) - min(start_a, start_b)
+
+        iou = intersection / union if union != 0 else 0
+        return iou
+    
+    def argmax(self, lst):
+        return max(range(len(lst)), key=lambda i: lst[i])
+    
+    def evaluate(self, label_dir):
+        avg_acc = 0
+        for file_name in os.listdir(label_dir):
+            acc = 0
+            label_file = os.path.join(label_dir, file_name)
+            pred_file = label_file.replace("label", "pred")
+            print(file_name)
+            with open(label_file, 'r') as f, open(pred_file, 'r') as f_pred:
+                
+                label = json.load(f)
+                pred = json.load(f_pred)
+                for interval in label["label"]:
+                    ious = [self.calculate_iou(interval, pred_interval) for pred_interval in pred["label"]]
+                    print(ious)
+                    if ious:  # Ensure ious is not empty
+                        indx = self.argmax(ious)
+                        if ious[indx] > 0.9:
+                            acc += 1
+            avg_acc += acc / label["count"]
+        print(avg_acc / len(os.listdir(label_dir)))
+                    
+    
     def inference(self, action, video_path=None):
         
         
@@ -171,3 +210,5 @@ class Pose_detector():
             with open(pred_path, "w+") as f:
                 data = {"count": counter, "label": list_frame}
                 json.dump(data, f)
+                
+                
