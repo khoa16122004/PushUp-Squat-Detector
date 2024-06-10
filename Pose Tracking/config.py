@@ -6,7 +6,10 @@ FRAME_STEP = 1
 
 mode = "video" # "video", "realtime"
 mode_realtime = "realtime"
-action = "pushup" # "pushup", "squat"
-video_path = r"D:\PushUp-Squat-Detector\Pose Tracking\video\v_PushUps_g01_c01.avi"
+action = "squat" # "pushup", "squat"
+video_path = r"D:\PushUp-Squat-Detector\Pose Tracking\dataset\squat\video\v_BodyWeightSquats_g18_c01.avi"
 
-label_dir = r"D:\PushUp-Squat-Detector\Pose Tracking\label"
+label_dir = r"D:\PushUp-Squat-Detector\Pose Tracking\dataset\squat\label"
+
+PUSHUP_DIR = r"D:\PushUp-Squat-Detector\Pose Tracking\dataset\squat\video"
+SQUAT_DIR = r"D:\PushUp-Squat-Detector\Pose Tracking\dataset\squat\video"

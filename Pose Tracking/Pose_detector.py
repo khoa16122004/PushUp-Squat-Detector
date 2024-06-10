@@ -32,7 +32,7 @@ class Pose_detector():
             stage = "down"
             return True, stage
         
-        if 160 < angle_knee < 169 and stage == 'up':
+        if 130 < angle_knee < 169 and stage == 'up':
             stage = "reduce"
             return True, stage
 
@@ -51,12 +51,12 @@ class Pose_detector():
         if angle_elbow > 120:
             stage = "up"
 
-        if angle_elbow <= 80 and stage == 'reduce':
+        if angle_elbow <= 90 and stage == 'reduce':
             stage = "down"
             print("down")
             return True, stage
     
-        if 98 < angle_elbow < 120 and stage == 'up':
+        if 100 < angle_elbow < 120 and stage == 'up':
             stage = "reduce"
             print("reduce")
             return True, stage
@@ -94,24 +94,29 @@ class Pose_detector():
     
     def evaluate(self, label_dir):
         avg_acc = 0
-        for file_name in os.listdir(label_dir):
-            acc = 0
-            label_file = os.path.join(label_dir, file_name)
-            pred_file = label_file.replace("label", "pred")
-            print(file_name)
-            with open(label_file, 'r') as f, open(pred_file, 'r') as f_pred:
-                
-                label = json.load(f)
-                pred = json.load(f_pred)
-                for interval in label["label"]:
-                    ious = [self.calculate_iou(interval, pred_interval) for pred_interval in pred["label"]]
-                    print(ious)
-                    if ious:  # Ensure ious is not empty
-                        indx = self.argmax(ious)
-                        if ious[indx] > 0.9:
-                            acc += 1
-            avg_acc += acc / label["count"]
-        print(avg_acc / len(os.listdir(label_dir)))
+        acc_sub = 0
+        try:
+            for file_name in os.listdir(label_dir):
+                acc = 0
+                label_file = os.path.join(label_dir, file_name)
+                pred_file = label_file.replace("label", "pred")
+                with open(label_file, 'r') as f, open(pred_file, 'r') as f_pred:
+                    label = json.load(f)
+                    pred = json.load(f_pred)
+                    acc_sub += pred["count"] / label["count"]
+                    for interval in label["label"]:
+                        ious = [self.calculate_iou(interval, pred_interval) for pred_interval in pred["label"]]
+                        print(ious)
+                        if ious:  # Ensure ious is not empty
+                            indx = self.argmax(ious)
+                            if ious[indx] > 0.9:
+
+                                acc += 1
+                avg_acc += acc / label["count"]
+            print(avg_acc / len(os.listdir(label_dir)))
+            print(acc_sub / len(os.listdir(label_dir)))
+        except Exception as e:
+            print(e)
                     
     
     def inference(self, action, video_path=None):
